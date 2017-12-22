@@ -57,6 +57,11 @@ public class Controller2D : RaycastController {
             Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.cyan);
             if (hit)
             {
+                //This stops us getting stuck in stuff, it will use the next raycast to detect collisions. 
+                if (hit.distance == 0)
+                {
+                    continue;
+                }
                 //get the angle of the surface
                 //using global up and normal to get the angle 
                 float slopeangle = Vector2.Angle(hit.normal, Vector2.up);

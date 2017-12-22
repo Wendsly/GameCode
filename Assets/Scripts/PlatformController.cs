@@ -6,12 +6,34 @@ public class PlatformController : RaycastController
 {
     List<PassengerMovement> passengerMovement;
     public LayerMask passengerMask;
-    public Vector3 move;
+
+    public float speed;
+    int fromwaypointIndex;
+    float percentBetweenWaypoints;
+
+    //Remember this when we set up the bomb, super useful :D
+    public float waitTime;
+    float nextmovetime;
+    public bool Cyclic;
+    //Limit the range between 1 and 3 because above that will not be useful, will discuse with designers. 
+    [Range(0,2)]
+    public float easeAmount;
+    //This stors positions of waypoints.
+    public Vector3[] localWaypoints;
+    
+    public Vector3[] globalWaypoints;
     Dictionary<Transform, Controller2D> passengerDictionary = new Dictionary<Transform, Controller2D>();
     // Use this for initialization
     public override void Start()
     {
         base.Start();
+
+        globalWaypoints = new Vector3[localWaypoints.Length];
+        //This sets up the waypoints that we will use and then makes sure that they don't move when the platforms move.
+        for (int i = 0; i <localWaypoints.Length; i++)
+        {
+            globalWaypoints[i] = localWaypoints[i] + transform.position;
+        }
 
     }
 
@@ -20,13 +42,62 @@ public class PlatformController : RaycastController
     {
         UpdateRaycastOrigins();
 
-        Vector3 velocity = move * Time.deltaTime;
+        Vector3 velocity = CalculatePlatformMovement();
 
         CalculatePassengerMovement(velocity);
 
         MovePassengers(true);
         transform.Translate(velocity);
         MovePassengers(false);
+    }
+    float Ease(float x)
+    {
+        float a = easeAmount + 1; // This will mean that if the ease amount is 0 then it will be defaulted to 1 
+        //This is done because 1 should always be the defualt. 
+
+        //This is the equation used for easing
+        return (Mathf.Pow(x, a) / (Mathf.Pow(x,a)) + Mathf.Pow(1-x,a));
+    }
+    Vector3 CalculatePlatformMovement()
+    {
+        //setting up a wait timer
+        if (Time.time < nextmovetime)
+        {
+            return Vector3.zero;
+        }
+        //This resets it to 0 when it reaches the length of the array.
+        fromwaypointIndex %= globalWaypoints.Length;
+        //get the next point in the index
+        int toWaypointIndex = (fromwaypointIndex + 1) % globalWaypoints.Length;
+        //get the distance between the points
+        float distanceBetweenWaypoints = Vector3.Distance(globalWaypoints[fromwaypointIndex], globalWaypoints[toWaypointIndex]);
+        //Find the percentage of distance and do it over time. 
+        percentBetweenWaypoints += Time.deltaTime * speed/distanceBetweenWaypoints;
+        //This is just to protect the ease function from giving wierd results
+        percentBetweenWaypoints = Mathf.Clamp01(percentBetweenWaypoints);
+        float easedPercentBetweenWaypoints = Ease(percentBetweenWaypoints);
+        //Move between the points
+        Vector3 newPos = Vector3.Lerp(globalWaypoints[fromwaypointIndex], globalWaypoints[toWaypointIndex], easedPercentBetweenWaypoints);
+        //This tells the platform what to do when it reaches the end of the array
+        if (percentBetweenWaypoints >= 1)
+        {
+            //this resets the percentage to 0 so that it can move again
+            percentBetweenWaypoints = 0;
+            //this goes to the next point in the array
+            fromwaypointIndex++;
+            if (!Cyclic)
+            {
+                //if it reaches the end of the array we reset and reverse the array.
+                if (fromwaypointIndex >= globalWaypoints.Length - 1)
+                {
+                    fromwaypointIndex = 0;
+                    System.Array.Reverse(globalWaypoints);
+                }
+            }
+            nextmovetime = Time.time + waitTime;
+        }
+        //calculate the amount left to move
+        return newPos - transform.position;
     }
 
     void MovePassengers(bool beforMovePlatform)
@@ -139,6 +210,24 @@ public class PlatformController : RaycastController
             velovity = _velocity;
             standingOnPlatform = _standingOnPlatform;
             moveBeforePlatform = _moveBeforePlatform;
+        }
+    }
+    //This is just some code so that we can show the waypoints in the sceene and place them accordingly
+    void OnDrawGizmos()
+    {
+        if (localWaypoints != null)
+        {
+            Gizmos.color = Color.green;
+            float size = .3f;
+            for (int i = 0; i < localWaypoints.Length; i++)
+            {
+                //change local position to global position to display it
+                //Checking if the aplication is playing, if it is we use the global waypoints otherwise we use the local ones
+                Vector3 globalWaypointPos = (Application.isPlaying)?globalWaypoints[i]: localWaypoints[i] + transform.position;
+                //Draw the gizmo at the local position
+                Gizmos.DrawLine(globalWaypointPos - Vector3.up * size, globalWaypointPos + Vector3.up * size);//This will draw a cross + <---LIKE DIS
+                Gizmos.DrawLine(globalWaypointPos - Vector3.left * size, globalWaypointPos + Vector3.left * size);
+            }
         }
     }
 }

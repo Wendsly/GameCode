@@ -12,18 +12,27 @@ public class Controller2D : RaycastController {
     float maxclimbangle = 80f;
     float maxDescendAngle = 75f;
     public collisionInfo collisions;
+    Vector2 playerInput;
+
     // Use this for initialization
     public override void Start()
     {
         base.Start();
     }
+    //This just makes the movingplatform not have to worry about the input
+    public void move(Vector3 velocity, bool standingOnPlatform)
+    {
+        move(velocity, Vector2.zero, standingOnPlatform);
+    }
     //This is the move function used in Player.cs 
-    public void move(Vector3 velocity, bool StandingOnPlatform = false)
+    public void move(Vector3 velocity, Vector2 input, bool standingOnPlatform = false)
     {
         UpdateRaycastOrigins();
+        
         //resets the collisions to false so that gravity doesn't constantly increase (obligotory Owen Wilson Wow)
         collisions.reset();
         collisions.velocityOld = velocity;
+        playerInput = input;
         if (velocity.y < 0)
         {
             descendSlope(ref velocity);
@@ -37,7 +46,7 @@ public class Controller2D : RaycastController {
             VerticalCollisions(ref velocity);
         }
         transform.Translate(velocity);
-        if (StandingOnPlatform)
+        if (standingOnPlatform)
         {
             collisions.below = true;
         }
@@ -121,6 +130,26 @@ public class Controller2D : RaycastController {
             //
             if (hit)
             {
+                //This means that if we approch an object with the tag through attached to it we will pass through it.
+                if(hit.collider.tag == "Through")
+                {
+                    if (directionY == 1 || hit.distance == 0)
+                    {
+                        //This skips code
+                        continue;
+                    }
+                    if(collisions.FallingThroughPlatfrom)
+                    {
+                        continue;
+                    }
+                    if (playerInput.y == -1)
+                    {
+                        collisions.FallingThroughPlatfrom = true;
+                        Invoke("resetFallingThroughPlatform", .5f);
+                        continue;
+                    }
+                    
+                }
                 //This sets the speed at which it will fall and then the direction, it will constantly gain speed over time
                 //todo create max fall speed for those big drops were gonna be having :D
                 velocity.y = (hit.distance - skinWidth) * directionY;
@@ -207,7 +236,9 @@ public class Controller2D : RaycastController {
     
 
 	//These are checks that I'm using to see where the player is and when the collisions need to be set 
-
+    void resetFallingThroughPlatform() {
+        collisions.FallingThroughPlatfrom = false;
+    }
 	public struct collisionInfo
     {
         public bool above, below;
@@ -216,6 +247,7 @@ public class Controller2D : RaycastController {
         public bool descendSlope;
         public float slopeAngle, slopeAngleOld;
         public Vector3 velocityOld;
+        public bool FallingThroughPlatfrom;
         public void reset()
         {
             //being able to set all of the bools to false. 

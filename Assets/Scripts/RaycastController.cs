@@ -18,9 +18,13 @@ public class RaycastController : MonoBehaviour {
     //seting up functionallity with built in unity systems
     [HideInInspector]
     public BoxCollider2D collider;
-    public virtual void Start()
+    public virtual void Awake()
     {
         collider = GetComponent<BoxCollider2D>();
+        
+    }
+    public virtual void Start()
+    {
         CalculateRaySpacing();
     }
     public void UpdateRaycastOrigins()

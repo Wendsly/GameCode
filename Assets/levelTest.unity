@@ -155,6 +155,12 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6f3cf4a34a284674fa571160fe506151, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &1129323647 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114226257176534362, guid: 6f3cf4a34a284674fa571160fe506151,
+    type: 2}
+  m_PrefabInternal: {fileID: 219418265}
+  m_Script: {fileID: 11500000, guid: b37a854756a719b4c9375a7adbf23ace, type: 3}
 --- !u!1 &1439260783
 GameObject:
   m_ObjectHideFlags: 0
@@ -166,6 +172,7 @@ GameObject:
   - component: {fileID: 1439260786}
   - component: {fileID: 1439260785}
   - component: {fileID: 1439260784}
+  - component: {fileID: 1439260789}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -235,6 +242,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1439260789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1439260783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 683d4453d5e52564ba2e8cb58af5d0a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1129323647}
+  focusAreaSize: {x: 3, y: 3}
+  verticalOffset: 1
+  LookAheadDistanceX: 4
+  LookSmoothTimeX: 0.5
+  verticalSmoothTime: 0
 --- !u!1001 &1469683247
 Prefab:
   m_ObjectHideFlags: 0
@@ -286,11 +310,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4113974749577028, guid: ef55bc07f1b509948a2050ebebba9519, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 0.83
+      value: -3.53
       objectReference: {fileID: 0}
     - target: {fileID: 4113974749577028, guid: ef55bc07f1b509948a2050ebebba9519, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 1.15
+      value: 0.96
       objectReference: {fileID: 0}
     - target: {fileID: 4113974749577028, guid: ef55bc07f1b509948a2050ebebba9519, type: 2}
       propertyPath: m_LocalPosition.z
@@ -436,6 +460,10 @@ Prefab:
         type: 2}
       propertyPath: speed
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1819193991301028, guid: 16fd154bdcefe00479afe7838556f483, type: 2}
+      propertyPath: m_TagString
+      value: Through
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 16fd154bdcefe00479afe7838556f483, type: 2}

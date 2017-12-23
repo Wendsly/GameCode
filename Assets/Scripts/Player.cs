@@ -9,7 +9,7 @@ public class Player : MonoBehaviour {
     public float MinJumpHeight = 1f;
     //time to get to the top
     public float timeToJumpApex = .4f;
-    public int MaxBombs = 1;
+    
     float MaxJumpVelocity;
     float MinJumpVelocity;
     float gravity;
@@ -22,7 +22,8 @@ public class Player : MonoBehaviour {
     //bomb spawn controlls 
     public Transform[] spawnLocation;
     public GameObject[] whatToSpawnPrefab;
-    public GameObject[] whatToSpawnClone; 
+    public GameObject[] whatToSpawnClone;
+    bool BombExists = false; 
 	void Start () {
         controller = GetComponent<Controller2D>();
         //This makes the gravity negativ and feel more natural
@@ -50,14 +51,22 @@ public class Player : MonoBehaviour {
                 Velocity.y = MinJumpVelocity;
             }
         }
+        if (GameObject.Find("Bomb(Clone)") != null)
+        {
+            BombExists = true;
+        } else
+        {
+            BombExists = false;
+        }
         if (Input.GetKeyDown(KeyCode.X))
         {
-            
-            if (MaxBombs > 0)
+           
+            if (!BombExists)
             {
                 SpawnBomb();
-                MaxBombs -= 1;
             }
+            
+            
             
         }
        
@@ -77,6 +86,7 @@ public class Player : MonoBehaviour {
     }
     void SpawnBomb()
     {
+         
         whatToSpawnClone[0] = Instantiate(whatToSpawnPrefab[0], spawnLocation[0].transform.position, Quaternion.Euler(0,0,0)) as GameObject;
     }
 }
